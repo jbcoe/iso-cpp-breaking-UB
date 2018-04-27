@@ -18,10 +18,10 @@ Should `C++` guarantee that undefined behaviour remains undefined behaviour as
 the language and library evolve? 
 
 We have recently seen papers that propose rendering currently undefined
-behaviour as well-defined.  Discussion has ensued in which the possibility of
-lost optimisation opportunity and lost ability to detect bugs at runtime.
+behaviour as well-defined.  Discussion has ensued in which concerns around the possibility of
+lost optimisation opportunity and lost ability to detect bugs at run-time have been raised.
 Rather than have precendent determined by a small number of cases we would like
-to discuss more generally the issues of changes to contract and detection of
+to discuss, more generally, the issues of changes to contract and detection of
 contract violation.
 
 This paper aims to invite the combined evolution groups to discuss, if not
@@ -44,8 +44,8 @@ In the presence of inheritance, the routines inherited by descendant classes
 postconditions, in force. This means that any implementations or redefinitions
 of inherited routines also have to be written to comply with their inherited
 contracts. Postconditions can be modified in redefined routines, but they may
-only be strengthened. That is, the redefined routine may increase the benefits
-it provides to the client, but may not decrease those benefits.  Preconditions
+only be strengthened. That is, the redefined routine may increase the guarantee
+it provides to the client, but may not decrease it.  Preconditions
 can be modified in redefined routines, but they may only be weakened. That is,
 the redefined routine may lessen the obligation of the client, but not increase
 it.
@@ -56,10 +56,9 @@ at run time.
 
 When violation of a pre/post-condition can be detected at compile time the
 compiler may be required to emit a diagnostic.  Compile time detection of
-pre/post-condition violation may be deemed too costly to be performed at
-compile time.
+pre/post-condition violation may be deemed too costly to be performed.
 
-When violation of a pre.post-condition can only be detected at run time a
+When violation of a pre/post-condition can only be detected at run time a
 run-time diagnostic may be emitted. This could be a thrown exception [REFs] or
 an assertion that is only observable in specific build modes. Run time
 detection of pre/post-condition violations may be deemed too costly and it may
