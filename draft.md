@@ -1,6 +1,5 @@
 # Broadening contracts and Preserving Undefined Behaviour
 ## ISO/IEC JTC1 SC22 WG21 - DXXXX
-##(Uniform-function-calling syntax lite)
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
 
