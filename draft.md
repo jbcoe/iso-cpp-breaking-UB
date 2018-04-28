@@ -173,6 +173,15 @@ Let us also assume that `getFooName` and `getBarName` can set `userName` to poin
 
 In this case the programmer has forgotten to handle the `BAR` user type. Currently, when he/she calls `getUserName` with a `BAR` user, during the internal call to `processName` and implicit construction of the `string_view`, there is an opportunity for his/her standard library implementation to report the mistake. Making `string_view(nullptr)` defined and the empty string would prohibit such an instrumented implementation; the programmer may subsequently expend significant effort tracing this bug as the empty string signifies something specific in his/her application.
 
+Perhaps an even more subtle example would be the interaction of `initializer_list` constructors with the implicit conversion to `string_view`:
+
+```c++
+std::vector<int> v0{0};
+std::vector<std::string_view> v1{0};
+```
+
+With current rules, the first vector `v0` clearly has a single element with the value `0`. The second vector is more nefarious, currently it implicitly constructs a `string_view` from `(const char*)0`, currently this is undefined behaviour and most implementations in debug mode will either throw an exception or `assert`.
+
 ### Removing undefined behaviour for signed integer overflow
 
 ## Polls
