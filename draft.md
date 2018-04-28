@@ -10,7 +10,7 @@ _Jonathan Coe \<jonathanbcoe@gmail.com\>_
 _Roger Orr \<rogero@howzatt.demon.co.uk\>_
 
 ## TL;DR
-Can people still rely on `ubsan` to find bugs after a compiler upgrade?
+Can people still rely on `ubsan` and/or library instrumentation to find bugs after a compiler upgrade?
 
 
 ## Introduction
@@ -19,7 +19,7 @@ the language and library evolve?
 
 We have recently seen papers that propose rendering currently undefined
 behaviour as well-defined.  Discussion has ensued in which concerns around the possibility of
-lost optimisation opportunity and lost ability to detect bugs at run-time have been raised.
+run-time performance degregatation and lost ability to detect bugs at run-time have been raised.
 Rather than have precendent determined by a small number of cases we would like
 to discuss, more generally, the issues of changes to contract and detection of
 contract violation.
@@ -29,6 +29,9 @@ determine, (non-binding) policy on preserving preconditions, preserving
 postconditions and preserving behaviour when they are violated. All terminology
 and tools referred to are explained in intentionally over-sufficient detail -
 any ambiguity would be costly.
+
+The core question that we wish to explore is: 
+> Should the committee support users and implementers relying on the invalidity of currently invalid programs as well as retained validity of currently well-formed programs?
 
 ## Preconditions and postconditions
 A precondition is a condition or predicate that must always be true just prior
@@ -131,6 +134,44 @@ are later allowed to make or forbidden from making.
 ## Reference Cases
 
 ### Relaxing preconditions for `string_view`
+P0903 [REF] proposes making passing `nullptr` to `string_view::string_view(const char*)` well defined. In this paper we will take no position on whether or not this should be adopted but enumerate some of the arguments raised for and against adoption from the perspective of widening the contract.
+
+#### In favour of widening
+- It is a non-breaking change, all currently valid code will remain valid.
+- Potentially reduced cognitive load on consumers of `string_view` and maintainers of code utilizing `string_view`.
+
+#### Against widening
+- Guaranteed additional run-time checking regardless of build mode.
+- Prevents certain classes of potential bugs being detected by the library implementation. 
+
+To explore these points further, consider the following code:
+
+```c++
+std::string processName(std::string_view userName);
+std::string getUserName(const UserConfig& userConfig)
+{
+    const char* userName;
+    switch (userConfig.userType)
+    {
+        case UserType::FOO:
+        {
+            getFooName(userConfig.uuid, &userName); // External library C function.
+            break;
+        }
+        // case UserType::BAR: // Programmer error
+        // {
+        //     getBarName(userConfig.uuid, &userName); // External library C function
+        //     break;
+        // }
+    }
+    
+    return processName(userName);
+}
+```
+
+Let us also assume that `getFooName` and `getBarName` can set `userName` to point to an empty string literal when there does not exist a user of an appropriate type with the specified `uuid`. 
+
+In this case the programmer has forgotten to handle the `BAR` user type. Currently, when he/she calls `getUserName` with a `BAR` user, during the internal call to `processName` and implicit construction of the `string_view`, there is an opportunity for his/her standard library implementation to report the mistake. Making `string_view(nullptr)` defined and the empty string would prohibit such an instrumented implementation; the programmer may subsequently expend significant effort tracing this bug as the empty string signifies something specific in his/her application.
 
 ### Removing undefined behaviour for signed integer overflow
 
