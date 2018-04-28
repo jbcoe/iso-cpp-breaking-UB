@@ -30,8 +30,8 @@ postconditions and preserving behaviour when they are violated. All terminology
 and tools referred to are explained in intentionally over-sufficient detail -
 any ambiguity would be costly.
 
-The core question that we wish to explore is: 
-> Should the committee support users and implementers relying on the invalidity of currently invalid programs as well as retained validity of currently well-formed programs?
+A core question that we wish to explore is: 
+> Should the committee support users and implementers relying on the invalidity of currently invalid programs for performance/testing purposes as well as retained validity of currently well-formed programs?
 
 ## Preconditions and postconditions
 A precondition is a condition or predicate that must always be true just prior
