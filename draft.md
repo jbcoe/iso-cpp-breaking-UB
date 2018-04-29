@@ -12,7 +12,6 @@ _Roger Orr \<rogero@howzatt.demon.co.uk\>_
 ## TL;DR
 Can people still rely on `ubsan` to find bugs after a compiler upgrade?
 
-
 ## Introduction
 Should `C++` guarantee that undefined behaviour remains undefined behaviour as
 the language and library evolve? 
@@ -31,11 +30,11 @@ and tools referred to are explained in intentionally over-sufficient detail -
 any ambiguity would be costly.
 
 ## Preconditions and postconditions
-A precondition is a condition or predicate that must always be true just prior
+A precondition [[1]](https://en.wikipedia.org/wiki/Precondition) is a condition or predicate that must always be true just prior
 to the execution of some section of code or before an operation in a formal
 specification.
 
-A postcondition is a condition or predicate that must always be true just after
+A postcondition [[2]](https://en.wikipedia.org/wiki/Postcondition) is a condition or predicate that must always be true just after
 the execution of some section of code or after an operation in a formal
 specification. 
 
@@ -105,7 +104,7 @@ non-development code.
 The check and exception are always active and will have performance impact in
 non-development code.
 
-Given that integer division-by-zero is undefined behaviour [REF] it may be
+Given that integer division-by-zero is undefined behaviour [[3]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf) it may be
 preferable to use a sanitized build [REF] to detect such contract violations
 rather than rely on an explicit debug check. 
 
@@ -157,6 +156,8 @@ The authors would like to thank their friends and families.
 
 ## References
 
-* WIKIPEDIA
+* [1] Precondition, Wikipedia, https://en.wikipedia.org/wiki/Precondition
+* [2] Postcondition, Wikipedia, https://en.wikipedia.org/wiki/Postcondition
+* [3] Section 8.1 paragraph 4, N4741 (Working Draft, Standard for Programming Language C++) http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf
 * STRING VIEW PAPER
 
