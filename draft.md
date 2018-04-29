@@ -33,24 +33,26 @@ A core question that we wish to explore is:
 > Should the committee support users and implementers relying on the invalidity of currently invalid programs for performance/testing purposes as well as retained validity of currently well-formed programs?
 
 ## Preconditions and postconditions
-A precondition [[1]](https://en.wikipedia.org/wiki/Precondition) is a condition or predicate that must always be true just prior
-to the execution of some section of code or before an operation in a formal
-specification.
+A precondition [[1]](https://en.wikipedia.org/wiki/Precondition) is a condition
+or predicate that must always be true just prior to the execution of some
+section of code or before an operation in a formal specification.
 
-A postcondition [[2]](https://en.wikipedia.org/wiki/Postcondition) is a condition or predicate that must always be true just after
-the execution of some section of code or after an operation in a formal
-specification. 
+A postcondition [[2]](https://en.wikipedia.org/wiki/Postcondition) is a
+condition or predicate that must always be true just after the execution of
+some section of code or after an operation in a formal specification.
+
+A contract is the set of preconditions and postconditions guaranteed by the
+interface to a section of code.
 
 In the presence of inheritance, the routines inherited by descendant classes
-(subclasses) do so with their contracts, that is their preconditions and
-postconditions, in force. This means that any implementations or redefinitions
-of inherited routines also have to be written to comply with their inherited
-contracts. Postconditions can be modified in redefined routines, but they may
-only be strengthened. That is, the redefined routine may increase the guarantee
-it provides to the client, but may not decrease it.  Preconditions
-can be modified in redefined routines, but they may only be weakened. That is,
-the redefined routine may lessen the obligation of the client, but not increase
-it.
+(subclasses) do so with their contracts in force. This means that any
+implementations or redefinitions of inherited routines also have to be written
+to comply with their inherited contracts. Postconditions can be modified in
+redefined routines, but they may only be strengthened. That is, the redefined
+routine may increase the guarantee it provides to the client, but may not
+decrease it.  Preconditions can be modified in redefined routines, but they may
+only be weakened. That is, the redefined routine may lessen the obligation of
+the client, but not increase it.
 
 ### Diagnosing violations of preconditions and postconditions
 Violation of a precondition or postcondition may be detected at compile time or
