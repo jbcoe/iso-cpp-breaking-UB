@@ -159,5 +159,5 @@ The authors would like to thank their friends and families.
 * [1] Precondition, Wikipedia, https://en.wikipedia.org/wiki/Precondition
 * [2] Postcondition, Wikipedia, https://en.wikipedia.org/wiki/Postcondition
 * [3] Section 8.1 paragraph 4, N4741 (Working Draft, Standard for Programming Language C++) http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf
-* STRING VIEW PAPER
+* [4] Define `basic_string_view(nullptr)`, P0903R1, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
 
