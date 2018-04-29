@@ -9,6 +9,12 @@ _Jonathan Coe \<jonathanbcoe@gmail.com\>_
 
 _Roger Orr \<rogero@howzatt.demon.co.uk\>_
 
+_Daven Gahir \<daven.gahir@gmail.com\>_
+
+_Andrew Bennieston \<a.j.bennieston@gmail.com\>_
+
+_Thomas Russell \<thomas.russell97@gmail.com\>_
+
 ## TL;DR
 Can people still rely on `ubsan` and/or library instrumentation to find bugs after a compiler upgrade?
 
