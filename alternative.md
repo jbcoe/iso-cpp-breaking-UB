@@ -222,4 +222,4 @@ As with other instances of undefined behaviour, it leaves the option for impleme
 - [[3]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
 - [[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
 - [[5]](http://wg21.link/p0907R1) P0907R1 - Signed Integers are Two's Complement
-- [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html) - Krister Walfridsson's blob - How undefined signed overflow enables optimizations in GCC.
+- [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html) - Krister Walfridsson's blog - How undefined signed overflow enables optimizations in GCC.
