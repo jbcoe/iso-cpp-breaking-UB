@@ -166,6 +166,47 @@ std::vector<std::string_view> v1{0};
 Under the current rules, the vector `v0` clearly has a single element with the value `0`. The vector `v1` is more nefarious; currently it implicitly constructs a `string_view` from `(const char*)0`, which results in undefined behaviour. Permitting null values for this constructor would produce an `initializer_list` containing a single empty `string_view` instead. This is unlikely to be what the user expected.
 
 ### Defining the behaviour for signed integer overflow
+P0907 [[5]](http://wg21.link/p0907r1.html) originally proposed in R0 to make signed integer overflow well-defined such that it behaves as unsigned integers on overflowing operations (i.e. overflow in the positive direction wraps around from the maximum integer value for the type back to the minimum and vice versa for overflow in the opposite direction). This was subsequently removed from the proposal following various concerns raised from EWG, SG6 and SG12. Below we present a quick overview of the reasons for removal of the sub-proposal defining signed integer overflow.
+
+#### Performance
+The primary complaint against defining overflow for signed integers was lost optimizaton opportunities and the subsequent expected performance degredation. Modern compilers take advantage of the currently undefined behaviour on signed integer overflow for a variety of optimizations.
+
+Possibly the most crucial of the currently permissed optimizations is loop analysis. Even considering a simple inconspicuous seeming `for` loop such as the following is affected:
+
+```c++
+signed int foo(signed int i) noexcept
+{
+  signed int j, k = 0;
+  for (j = i; j < i + 10; ++j) ++k;
+  return k;
+}
+```
+
+A quick glance at this function would expect that this could be trivially reduced to a simple `return 10` statement during a flow-analysis optimization pass. Indeed, with the current rules, this is what most modern compilers will emit. However, under the previously proposed changes, this would no longer be valid as there are some inputs which would overflow. 
+
+There are a plethora of other optimization opportunities that are similarly reliant on the undefined behaviour of signed integer overflow. Below are an (incomplete) summary of other optimizations gathered from [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
+
+- `(x * c) == 0` can be optimized to `x == 0` eliding the multiplication.
+- `(x * c_1) / c_2` can be optimized to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
+- `(-x) / (-y)` can be optimized to `x / y`.
+- `(x + c) < x` can be optimized to `false` if `c > 0` or `true` otherwise.
+- `(x + c) <= x` can be optimized to `false` if `c >= 0` or `true` otherwise.
+- `(x + c) > x` can be optimized to `true` if `c >= 0` and `false` otherwise.
+- `(x + c) >= x` can be optimized to `true` if `c > 0` and `false` otherwise.
+- `-x == -y` can be optimized to `x == y`. 
+- `x + c > y` can be optimized to `x + (c - 1) >= y`.
+- `x + c <= y` can be optimized to `x + (c - 1) < y`.
+- `(x + c_1) == c_2` can be optimized to `x == (c_2 - c_1)`.
+- `(x + c_1) == (y + c_2)` can be optimized to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
+- Various value-range specific optimizations such as:
+  - Changing comparisons `x < y` to `true` or `false`. 
+  - Changing `min(x,y)` or `max(x,y)` to `x` or `y` if the ranges do not overlap.
+  - Changing `abs(x)` to `x` or `-x` if the range does not cross 0.
+  - Changing `x / c` to `x >> log2(c)` if `x > 0` 
+  - Changing `x % c` to `x & (c-1)` if `x > 0` and the constant `c` is a power of 2.
+
+#### Bug Detection
+As with other instances of undefined behaviour, it leaves the option for implementors and tooling developers to detect and report likely bugs to developers. Running a test suite instrumented with a tool such as `ubsan` can be an important part of the software development lifecycle and helps to detect bugs. According to R1 of the paper, Google gathered data that suggested that 90% of all overflow situations are a bug and that defining wrapping behaviour would not have solved the bug.
 
 ## Polls
 
@@ -180,3 +221,5 @@ Under the current rules, the vector `v0` clearly has a single element with the v
 - [[2]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) GCC Instrumentation Options, https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
 - [[3]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
 - [[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
+- [[5]](http://wg21.link/p0907R1) P0907R1 - Signed Integers are Two's Complement
+- [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html) - Krister Walfridsson's blob - How undefined signed overflow enables optimizations in GCC.
