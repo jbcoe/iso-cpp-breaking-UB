@@ -206,7 +206,7 @@ There are a plethora of other optimization opportunities that are similarly reli
   - Changing `x % c` to `x & (c-1)` if `x > 0` and the constant `c` is a power of 2.
 
 #### Bug Detection
-As with other instances of undefined behaviour, it leaves the option for implementors and tooling developers to detect and report likely bugs to developers. Running a test suite instrumented with a tool such as `ubsan` can be an important part of the software development lifecycle and helps to detect bugs. According to R1 of the paper, Google gathered data that suggested that 90% of all overflow situations are a bug and that defining wrapping behaviour would not have solved the bug.
+As with other instances of undefined behaviour, it leaves the option for implementors and tooling developers to detect and report likely bugs to developers. Running a test suite instrumented with a tool such as `ubsan` can be an important part of the software development lifecycle and helps to detect otherwise potentially hard-to-trace and subtle bugs. According to R1 of the paper, Google gathered data that suggested that 90% of all overflow situations are a bug and that defining wrapping behaviour would not have solved the bug.
 
 ## Polls
 
