@@ -132,11 +132,11 @@ defining signed integer overflow.
 
 #### Performance
 The primary complaint against defining overflow for signed integers was lost
-optimizaton opportunities and the subsequent expected performance degradation.
+optimisation opportunities and the subsequent expected performance degradation.
 Modern compilers take advantage of the currently undefined behaviour on signed
-integer overflow for a variety of optimizations.
+integer overflow for a variety of optimisations.
 
-Possibly the most crucial of the currently permissed optimizations is loop
+Possibly the most crucial of the currently permitted optimisations is loop
 analysis. Even considering a simple inconspicuous seeming `for` loop such as
 the following is affected:
 
@@ -150,29 +150,29 @@ signed int foo(signed int i) noexcept
 ```
 
 A quick glance at this function would expect that this could be trivially
-reduced to a simple `return 10` statement during a flow-analysis optimization
+reduced to a simple `return 10` statement during a flow-analysis optimisation
 pass. Indeed, with the current rules, this is what most modern compilers will
 emit. However, under the previously proposed changes, this would no longer be
 a valid optimisation as there are some inputs which would overflow. 
 
-There are a plethora of other optimization opportunities that are similarly
+There are a plethora of other optimisation opportunities that are similarly
 reliant on the undefined behaviour of signed integer overflow. Below is an
-(incomplete) summary of other optimizations gathered from
+(incomplete) summary of other optimisations gathered from
 [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
 
-- `(x * c) == 0` can be optimized to `x == 0` eliding the multiplication.
-- `(x * c_1) / c_2` can be optimized to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
-- `(-x) / (-y)` can be optimized to `x / y`.
-- `(x + c) < x` can be optimized to `false` if `c > 0` or `true` otherwise.
-- `(x + c) <= x` can be optimized to `false` if `c >= 0` or `true` otherwise.
-- `(x + c) > x` can be optimized to `true` if `c >= 0` and `false` otherwise.
-- `(x + c) >= x` can be optimized to `true` if `c > 0` and `false` otherwise.
-- `-x == -y` can be optimized to `x == y`. 
-- `x + c > y` can be optimized to `x + (c - 1) >= y`.
-- `x + c <= y` can be optimized to `x + (c - 1) < y`.
-- `(x + c_1) == c_2` can be optimized to `x == (c_2 - c_1)`.
-- `(x + c_1) == (y + c_2)` can be optimized to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
-- Various value-range specific optimizations such as:
+- `(x * c) == 0` can be optimised to `x == 0` eliding the multiplication.
+- `(x * c_1) / c_2` can be optimised to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
+- `(-x) / (-y)` can be optimised to `x / y`.
+- `(x + c) < x` can be optimised to `false` if `c > 0` or `true` otherwise.
+- `(x + c) <= x` can be optimised to `false` if `c >= 0` or `true` otherwise.
+- `(x + c) > x` can be optimised to `true` if `c >= 0` and `false` otherwise.
+- `(x + c) >= x` can be optimised to `true` if `c > 0` and `false` otherwise.
+- `-x == -y` can be optimised to `x == y`.
+- `x + c > y` can be optimised to `x + (c - 1) >= y`.
+- `x + c <= y` can be optimised to `x + (c - 1) < y`.
+- `(x + c_1) == c_2` can be optimised to `x == (c_2 - c_1)`.
+- `(x + c_1) == (y + c_2)` can be optimised to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
+- Various value-range specific optimisations such as:
   - Changing comparisons `x < y` to `true` or `false`. 
   - Changing `min(x,y)` or `max(x,y)` to `x` or `y` if the ranges do not overlap.
   - Changing `abs(x)` to `x` or `-x` if the range does not cross 0.
@@ -181,7 +181,7 @@ reliant on the undefined behaviour of signed integer overflow. Below is an
 
 ## Polls
 
-- Undefined behavior should be preserved from one version of the C++ Standard
+- Undefined behaviour should be preserved from one version of the C++ Standard
   to the next.
 
 - Compiler / library diagnostics that allow undefined behaviour to be trapped
