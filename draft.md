@@ -1,221 +1,221 @@
-# Broadening contracts and Preserving Undefined Behaviour
+# When is it acceptable to eliminate undefined behaviour?
 ## ISO/IEC JTC1 SC22 WG21 - DXXXX
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
 
-Date: 2018-04-27
+Date: 2018-05-07
+
+_Andrew Bennieston \<a.j.bennieston@gmail.com\>_
 
 _Jonathan Coe \<jonathanbcoe@gmail.com\>_
 
-_Roger Orr \<rogero@howzatt.demon.co.uk\>_
-
 _Daven Gahir \<daven.gahir@gmail.com\>_
-
-_Andrew Bennieston \<a.j.bennieston@gmail.com\>_
 
 _Thomas Russell \<thomas.russell97@gmail.com\>_
 
 ## TL;DR
-Can people still rely on `ubsan` and/or library instrumentation to find bugs after a compiler upgrade?
+
+Can people still rely on `ubsan` and library instrumentation to find bugs after
+a compiler upgrade?
+
+## _UB or not UB_
+_To define or not to define? That is the question: whether ‘tis nobler in the
+mind to suffer the slings and arrows of undefined behaviour, or to take arms
+against a sea of troubles and by defining: end them._
 
 ## Introduction
-Should `C++` guarantee that undefined behaviour remains undefined behaviour as
-the language and library evolve? 
+
+Should C++ guarantee that undefined behaviour remains undefined behaviour as
+the language and library evolve?
 
 We have recently seen papers that propose rendering currently undefined
-behaviour as well-defined.  Discussion has ensued in which concerns around the possibility of
-run-time performance degregatation and lost ability to detect bugs at run-time have been raised.
-Rather than have precendent determined by a small number of cases we would like
-to discuss, more generally, the issues of changes to contract and detection of
-contract violation.
+behaviour as well-defined [REFS]. In the ensuing discussion, concerns were
+raised about the possibility of degraded run-time performance (e.g. due to
+missed optimisation opportunities) and lost ability to detect bugs (e.g. due to
+tools like `ubsan` being increasingly constrained). Rather than have precedent
+determined by a small number of concrete cases, we would like to discuss more
+generally the issue of changes to the language and library that aim to
+eliminate undefined behaviour.
 
-This paper aims to invite the combined evolution groups to discuss, if not
-determine, (non-binding) policy on preserving preconditions, preserving
-postconditions and preserving behaviour when they are violated. All terminology
-and tools referred to are explained in intentionally over-sufficient detail -
-any ambiguity would be costly.
+In this paper, we invite the combined evolution groups to discuss, if not
+determine, (non-binding) policy on preserving or eliminating undefined
+behaviour.
 
-A core question that we wish to explore is: 
-> Should the committee support users and implementers relying on the invalidity of currently invalid programs for performance/testing purposes as well as retained validity of currently well-formed programs?
+Should the committee support users and implementers that rely on the invalidity
+of currently invalid programs (i.e. relying on undefined behaviour) for
+performance or testing purposes, in addition to the goal of retaining validity
+of currently well-formed programs [REF]?
 
 ## Preconditions and postconditions
-A precondition [[1]](https://en.wikipedia.org/wiki/Precondition) is a condition
-or predicate that must always be true just prior to the execution of some
-section of code or before an operation in a formal specification.
 
-A postcondition [[2]](https://en.wikipedia.org/wiki/Postcondition) is a
-condition or predicate that must always be true just after the execution of
-some section of code or after an operation in a formal specification.
+Contract-based-programming is a software design method where formal
+requirements and guarantees are given for functions. Contract design for C++ is
+described in
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf)
+and
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html).
 
-A contract is the set of preconditions and postconditions guaranteed by the
-interface to a section of code.
+"A precondition is a predicate that should hold upon entry into a function. It
+expresses a function's expectation on its arguments and/or the state of objects
+that may be used by the function."
 
-In the presence of inheritance, the routines inherited by descendant classes
-(subclasses) do so with their contracts in force. This means that any
-implementations or redefinitions of inherited routines also have to be written
-to comply with their inherited contracts. Postconditions can be modified in
-redefined routines, but they may only be strengthened. That is, the redefined
-routine may increase the guarantee it provides to the client, but may not
-decrease it.  Preconditions can be modified in redefined routines, but they may
-only be weakened. That is, the redefined routine may lessen the obligation of
-the client, but not increase it.
+"A postcondition is a predicate that should hold upon exit from a function. It
+expresses the conditions that a function should ensure for the return value
+and/or the state of objects that may be used by the function."
 
-### Diagnosing violations of preconditions and postconditions
-Violation of a precondition or postcondition may be detected at compile time or
-at run time.
+A function with preconditions is said to have a _narrow contract_. Violating
+the preconditions on such a function results in undefined behaviour. 
 
-When violation of a pre/post-condition can be detected at compile time the
-compiler may be required to emit a diagnostic.  Compile time detection of
-pre/post-condition violation may be deemed too costly to be performed.
+When there are no preconditions on input, a function is said to have a _wide
+contract_.  There may be input values for wide-contract functions that result
+in exceptions being thrown (`std::vector::at(size_t i)` when
+`i>std::vector::size()`) but such behaviour is well-defined.
 
-When violation of a pre/post-condition can only be detected at run time a
-run-time diagnostic may be emitted. This could be a thrown exception [REFs] or
-an assertion that is only observable in specific build modes. Run time
-detection of pre/post-condition violations may be deemed too costly and it may
-be preferable if the compiler were to assume that the pre/post-condition were
-true and optimise accordingly. 
+## Sanitizers and assertions
+The undefined behavior sanitizer from GCC and Clang
+[[REF]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
+used to produce an instrumented build in which some instances of undefined
+behaviour will be detected and the program terminated with a helpful message.  
 
-[Signed overflow and vectorisation]
+Standard library implementations can be augmented with debug checks and
+assertions to ensure that preconditions are true.  For instance, calling
+`std::vector::operator[](size_t i)` with `i` beyond the end of the vector will
+be caught in a debug build using Microsoft's Standard Library implementation.
 
-Consider the following code:
+## Case studies
 
-```~cpp
-int divide(int x, int y) {
-  return x / y;
-}
-```
+### Relaxing a precondition for `std::string_view`
 
-If `y=0` then the result of the division cannot be represented as an `int` and
-the result is undefined. We can require, as a precondition, that `y!=0` and
-guarantee as a postcondition that calling `divide` will not result in program
-termination.
-
-This could be enforced by an assertion:
-
-```~cpp
-int divide(int x, int y) {
-  assert(y != 0);
-  return x / y;
-}
-```
-
-or with an exception:
-
-```~cpp
-int divide(int x, int y) {
-  if(y == 0) 
-    throw std::runtime_error("Bad argument: y==0");
-  return x / y;
-}
-```
-
-The assertion will be active in debug mode only and will incur no cost in
-non-development code.
-
-The check and exception are always active and will have performance impact in
-non-development code.
-
-Given that integer division-by-zero is undefined behaviour [[3]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf) it may be
-preferable to use a sanitized build [REF] to detect such contract violations
-rather than rely on an explicit debug check. 
-
-The eventual choice is an engineering compromise that we are all qualified and
-happy to make given the particular constraints of our production and
-development environments.
-
-We concern ourselves not with the decision that is made, but with the changes we
-are later allowed to make or forbidden from making.
-
-### Relaxing preconditions
-
-### Relaxing postconditions
-
-### Relaxing diagnostics
-
-### Restricting preconditions
-
-### Restricting postconditions
-
-### Restricting diagnostics
-
-## Reference Cases
-
-### Relaxing preconditions for `string_view`
-P0903 [REF] proposes making passing `nullptr` to `string_view::string_view(const char*)` well defined. In this paper we will take no position on whether or not this should be adopted but enumerate some of the arguments raised for and against adoption from the perspective of widening the contract.
+P0903
+[[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
+proposes to make `string_view((const char*)nullptr)` well-defined. In this
+paper, we take no position on whether this should be adopted, but enumerate
+some of the arguments raised for and against adoption from the perspective of
+widening the interface.
 
 #### In favour of widening
-- It is a non-breaking change, all currently valid code will remain valid.
-- Potentially reduced cognitive load on consumers of `string_view` and maintainers of code utilizing `string_view`.
+- It is a non-breaking change – all currently valid code will remain valid.
+- There is potentially reduced cognitive load on consumers of `string_view` and
+  maintainers of code using `string_view`.
 
 #### Against widening
-- Guaranteed additional run-time checking regardless of build mode.
-- Prevents certain classes of potential bugs being detected by the library implementation. 
+- Additional run-time checking, regardless of build mode (i.e. a performance
+  impact).
+- Prevents certain classes of potential bugs being detected by the
+  implementation.
 
 To explore these points further, consider the following code:
 
 ```c++
-std::string processName(std::string_view userName);
-std::string getUserName(const UserConfig& userConfig)
-{
-    const char* userName;
-    switch (userConfig.userType)
-    {
-        case UserType::FOO:
-        {
-            getFooName(userConfig.uuid, &userName); // External library C function.
-            break;
-        }
-        // case UserType::BAR: // Programmer error
-        // {
-        //     getBarName(userConfig.uuid, &userName); // External library C function
-        //     break;
-        // }
-    }
-    
-    return processName(userName);
+std::string processName(std::string_view username);
+
+std::string getUserName(const UserConfig& user_config) {
+  const char* username = nullptr;
+  
+  switch (user_config.user_type) {
+    case UserType::FOO:
+      getFooName(user_config.uuid, &username); // external library C function
+      break;
+    case UserType::BAR:
+      // Programmer error: forgot to call getBarName
+      break;
+  }
+
+  return processName(username);
 }
 ```
 
-Let us also assume that `getFooName` and `getBarName` can set `userName` to point to an empty string literal when there does not exist a user of an appropriate type with the specified `uuid`. 
+Let us assume that `getFooName` and `getBarName` always set their second
+parameter to point to a valid C string (possibly empty, i.e. `"\0"`).
 
-In this case the programmer has forgotten to handle the `BAR` user type. Currently, when he/she calls `getUserName` with a `BAR` user, during the internal call to `processName` and implicit construction of the `string_view`, there is an opportunity for his/her standard library implementation to report the mistake. Making `string_view(nullptr)` defined and the empty string would prohibit such an instrumented implementation; the programmer may subsequently expend significant effort tracing this bug as the empty string signifies something specific in his/her application.
+In this case, the programmer forgot to handle the `BAR` case properly, and the
+call to `processName` may construct a `string_view` with a `nullptr` argument.
+In the current specification, passing `nullptr` to the single-parameter
+constructor for `string_view` violates a precondition and may result in
+undefined behaviour when attempting to calculate the length of the string view
+(which will involve dereferencing the pointer). This provides an opportunity
+for a library implementation to emit diagnostics that could guide the developer
+  towards the source of the problem.
 
-Perhaps an even more subtle example would be the interaction of `initializer_list` constructors with the implicit conversion to `string_view`:
+By making this constructor valid, and internally reinterpreting it as a call to
+`string_view(nullptr, 0)`, we would eliminate the possibility for the library
+to flag this for attention, and instead produce an empty string view, a
+situation that is much harder to debug as the cause and effect may be separated
+by some considerable distance or time.
+
+### Defining the behaviour for signed integer overflow
+P0907 [[5]](http://wg21.link/p0907r1.html) originally proposed in R0 to make
+signed integer overflow well-defined such that it behaves as for unsigned integers
+on overflowing operations (i.e. overflow in the positive direction wraps around
+from the maximum integer value for the type back to the minimum and vice versa
+for overflow in the opposite direction). This was subsequently removed from the
+proposal following various concerns raised from EWG, SG6 and SG12. Below we
+present a quick overview of the reasons for removal of the sub-proposal
+defining signed integer overflow.
+
+#### Performance
+The primary complaint against defining overflow for signed integers was lost
+optimisation opportunities and the subsequent expected performance degradation.
+Modern compilers take advantage of the currently undefined behaviour on signed
+integer overflow for a variety of optimisations.
+
+Possibly the most crucial of the currently permitted optimisations is loop
+analysis. Even considering a simple inconspicuous seeming `for` loop such as
+the following is affected:
 
 ```c++
-std::vector<int> v0{0};
-std::vector<std::string_view> v1{0};
+signed int foo(signed int i) noexcept
+{
+  signed int j, k = 0;
+  for (j = i; j < i + 10; ++j) ++k;
+  return k;
+}
 ```
 
-With current rules, the first vector `v0` clearly has a single element with the value `0`. The second vector is more nefarious, currently it implicitly constructs a `string_view` from `(const char*)0`, currently this is undefined behaviour and most implementations in debug mode will either throw an exception or `assert`.
+A quick glance at this function would expect that this could be trivially
+reduced to a simple `return 10` statement during a flow-analysis optimisation
+pass. Indeed, with the current rules, this is what most modern compilers will
+emit. However, under the previously proposed changes, this would no longer be
+a valid optimisation as there are some inputs which would overflow. 
 
-### Removing undefined behaviour for signed integer overflow
+There are a plethora of other optimisation opportunities that are similarly
+reliant on the undefined behaviour of signed integer overflow. Below is an
+(incomplete) summary of other optimisations gathered from
+[[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
+
+- `(x * c) == 0` can be optimised to `x == 0` eliding the multiplication.
+- `(x * c_1) / c_2` can be optimised to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
+- `(-x) / (-y)` can be optimised to `x / y`.
+- `(x + c) < x` can be optimised to `false` if `c > 0` or `true` otherwise.
+- `(x + c) <= x` can be optimised to `false` if `c >= 0` or `true` otherwise.
+- `(x + c) > x` can be optimised to `true` if `c >= 0` and `false` otherwise.
+- `(x + c) >= x` can be optimised to `true` if `c > 0` and `false` otherwise.
+- `-x == -y` can be optimised to `x == y`.
+- `x + c > y` can be optimised to `x + (c - 1) >= y`.
+- `x + c <= y` can be optimised to `x + (c - 1) < y`.
+- `(x + c_1) == c_2` can be optimised to `x == (c_2 - c_1)`.
+- `(x + c_1) == (y + c_2)` can be optimised to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
+- Various value-range specific optimisations such as:
+  - Changing comparisons `x < y` to `true` or `false`. 
+  - Changing `min(x,y)` or `max(x,y)` to `x` or `y` if the ranges do not overlap.
+  - Changing `abs(x)` to `x` or `-x` if the range does not cross 0.
+  - Changing `x / c` to `x >> log2(c)` if `x > 0` 
+  - Changing `x % c` to `x & (c-1)` if `x > 0` and the constant `c` is a power of 2.
 
 ## Polls
 
-* Compile-time preconditions should be preserved between C++ standards.
+- Undefined behaviour should be preserved from one version of the C++ Standard
+  to the next.
 
-* Run-time preconditions should be preserved between C++ standards.
+- Compiler / library diagnostics that allow undefined behaviour to be trapped
+  should be considered when determining if a new feature is non-breaking.
 
-* Compile-time postconditions should be preserved between C++ standards.
-
-* Run-time postconditions should be preserved between C++ standards.
-
-* Pre and postcondition violations that result in compiler diagnostics should be preserved between C++ standards.
-
-* Pre and postcondition violations that result in exceptions should be preserved between C++ standards.
-
-* Pre and postcondition violations that result in undefined behaviour should be preserved between C++ standards.
-
-
-## Acknowledgements
-The authors would like to thank their friends and families.
-
+- Compiler / library optimisations that exploit undefined behaviour should be
+  considered when determining if a new feature is non-breaking.
 
 ## References
 
-* [1] Precondition, Wikipedia, https://en.wikipedia.org/wiki/Precondition
-* [2] Postcondition, Wikipedia, https://en.wikipedia.org/wiki/Postcondition
-* [3] Section 8.1 paragraph 4, N4741 (Working Draft, Standard for Programming Language C++) http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf
-* [4] Define `basic_string_view(nullptr)`, P0903R1, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
-
+- [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf) N4741 – Working Draft, Standard for Programming Language C++, Section 8.1 paragraph 4, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf
+- [[2]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) GCC Instrumentation Options, https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+- [[3]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+- [[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
