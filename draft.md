@@ -37,7 +37,7 @@ In this paper, following the spirit of [[REF]](https://wg21.link/P0684R2) and
 discuss, if not determine, (non-binding) policy on preserving or eliminating
 undefined behaviour.
 
-## Preconditions and postconditions
+## Contracts, preconditions and postconditions
 
 Contract-based-programming is a software design method where formal
 requirements and guarantees are given for functions. Contract design for C++ is
@@ -62,11 +62,11 @@ A function with preconditions is said to have a _narrow contract_. Violating
 the preconditions on such a function may result in an ill-formed program and
 associated compile-time-diagnostics or in undefined behaviour. 
 
-When there are no preconditions on input, a function is said to have a _wide
-contract_.  There may be input values for wide-contract-functions that result
-in exceptions being thrown but such behaviour is always well-defined.
-`std::vector` has `operator[]` and `at` to perform index-access with narrow and
-wide contracts respectively.
+When there are no preconditions on a function's arguments, the function is said
+to have a _wide contract_.  There may be input values for
+wide-contract-functions that result in exceptions being thrown but such
+behaviour is always well-defined.  `std::vector` has `operator[]` and `at` to
+perform index-access with narrow and wide contracts respectively.
 
 ### Changes to contracts
 In an updated version of the C++ Standard we may wish to consider making
