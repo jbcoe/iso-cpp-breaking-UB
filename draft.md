@@ -232,28 +232,16 @@ this would no longer be a valid optimisation as there are some inputs which
 would overflow.
 
 There are many other optimisation opportunities that are similarly reliant on
-the undefined behaviour of signed integer overflow. Below is an (incomplete)
-summary of other optimisations gathered from
-[[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
-
-- `(x * c) == 0` can be optimised to `x == 0`, eliding the multiplication.
-- `(x * c_1) / c_2` can be optimised to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
-- `(-x) / (-y)` can be optimised to `x / y`.
-- `(x + c) < x` can be optimised to `false` if `c > 0` or `true` otherwise.
-- `(x + c) <= x` can be optimised to `false` if `c >= 0` or `true` otherwise.
-- `(x + c) > x` can be optimised to `true` if `c >= 0` and `false` otherwise.
-- `(x + c) >= x` can be optimised to `true` if `c > 0` and `false` otherwise.
-- `-x == -y` can be optimised to `x == y`.
-- `x + c > y` can be optimised to `x + (c - 1) >= y`.
-- `x + c <= y` can be optimised to `x + (c - 1) < y`.
-- `(x + c_1) == c_2` can be optimised to `x == (c_2 - c_1)`.
-- `(x + c_1) == (y + c_2)` can be optimised to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
-- Various value-range specific optimisations such as:
-  - Changing comparisons `x < y` to `true` or `false`. 
-  - Changing `min(x,y)` or `max(x,y)` to `x` or `y` if the ranges do not overlap.
-  - Changing `abs(x)` to `x` or `-x` if the range does not cross 0.
-  - Changing `x / c` to `x >> log2(c)` if `x > 0` 
-  - Changing `x % c` to `x & (c-1)` if `x > 0` and the constant `c` is a power of 2.
+signed integer overflow being undefined. One class of optimisation elides
+constants and mathematical operations involving constants, such as `(x * c) ==
+0` -> `x == 0` (which can't be assumed if overflow is defined to wrap). Another
+class involves optimisations for relational operators, such as replacing `(x +
+c) < x` with `false` if `c > 0` or `true` otherwise. A further class of
+optimisations involves replacing division and modulus with bitwise operations,
+such as `x / c` -> `c >> log2(c)` if `x > 0`, or `x % c` -> `x & (c - 1)` if
+`x > 0` and the constant `c` is a power of two. These examples were taken from
+[[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html),
+where a more comprehensive list of possible transformations can be found.
 
 ## Polls
 
