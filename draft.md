@@ -13,9 +13,11 @@ _Daven Gahir \<daven.gahir@gmail.com\>_
 
 _Thomas Russell \<thomas.russell97@gmail.com\>_
 
-_UB or not UB? That is the question: whether ‘tis nobler in the mind to suffer
-the slings and arrows of undefined behaviour, or to take arms against a sea of
-troubles and by defining: end them._ -- William Shakepeare, Hamlet (adapted).
+> _UB or not UB? That is the question: whether ‘tis nobler in the mind to suffer
+> the slings and arrows of undefined behaviour, or to take arms against a sea of
+> troubles and by defining: end them._
+>
+> -- William Shakepeare, Hamlet (adapted).
 
 ## TL;DR
 
