@@ -237,8 +237,8 @@ constants and mathematical operations involving constants, such as `(x * c) ==
 class involves optimisations for relational operators, such as replacing `(x +
 c) < x` witth `false` if `c > 0` or `true` otherwise. A further class of
 optimisations involves replacing division and modulus with bitwise operations,
-such as `x / c` -> `c >> log2(c)` if `x > 0`, or `x % c` -> `x & (c - 1)` if `x
-> 0` and the constant `c` is a power of two. These examples were taken from
+such as `x / c` -> `c >> log2(c)` if `x > 0`, or `x % c` -> `x & (c - 1)` if
+`x > 0` and the constant `c` is a power of two. These examples were taken from
 [[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html),
 where a more comprehensive list of possible transformations can be found.
 
