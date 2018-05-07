@@ -19,8 +19,9 @@ troubles and by defining: end them._ -- William Shakepeare, Hamlet (adapted).
 
 ## TL;DR
 
-Can people still rely on `ubsan` and library instrumentation to find bugs after
-a compiler upgrade?
+Undefined behaviour can be exploited to optimise code and used by compiler and
+library instruemntation to find bugs.  Can we rely on such optimisations and
+bug-squashing abilities after a compiler upgrade?
 
 ## Introduction
 
