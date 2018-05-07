@@ -141,18 +141,18 @@ interface.
 
 #### In favour of widening
 
-- It is a non-breaking change – all currently valid code will remain valid.
-- There is potentially reduced cognitive load on consumers of `string_view` and
-  maintainers of code using `string_view`.
+This is a non-breaking change that reduces cognitive load on consumers of
+`string_view` and maintainers of code using `string_view`. Code that is
+currently valid will remain valid.
 
 #### Against widening
 
-- Additional run-time checking, regardless of build mode (i.e. a performance
-  impact).
-- Prevents certain classes of potential bugs being detected by the
-  implementation.
-
-To explore these points further, consider the following code:
+The change introduces additional run-time checking, regardless of build mode.
+This has a performance impact that may be undesirable, especially if the
+calling code already verifies that the pointer is non-null, and cannot be opted
+out of. In addition to the performance impact, this change prevents certain
+classes of potential bugs being detected by the implementation. To explore
+these points further, consider the following code:
 
 ```c++
 std::string processName(std::string_view username);
