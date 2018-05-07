@@ -133,10 +133,11 @@ criteria we outlined above but have led to considerable discussion.
 
 P0903
 [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
-proposes to make `string_view((const char*)nullptr)` well-defined. In this
-paper, we take no position on whether this should be adopted, but enumerate
-some of the arguments raised for and against adoption from the perspective of
-widening the interface.
+proposes to widen the contract of the `string_view(const char*)` constructor to
+make `string_view((const char*)nullptr)` well-defined. In this paper, we take
+no position on whether this should be adopted, but enumerate some of the
+arguments raised for and against adoption from the perspective of widening the
+interface.
 
 #### In favour of widening
 
@@ -184,11 +185,11 @@ undefined behaviour when attempting to calculate the length of the string view
 for a library implementation to emit diagnostics that could guide the developer
 towards the source of the problem.
 
-By making this constructor valid, and internally reinterpreting it as a call to
-`string_view(nullptr, 0)`, we would eliminate the possibility for the library
-to flag this for attention, and instead produce an empty string view, a
-situation that is much harder to debug as the cause and effect may be separated
-by some considerable distance or time.
+By making this constructor valid, widening the contract to internally
+reinterpret it as a call to `string_view(nullptr, 0)`, we would eliminate the
+possibility for the library to flag this for attention, and instead produce an
+empty string view, a situation that is much harder to debug as the cause and
+effect may be separated by some considerable distance or time.
 
 ### Defining the behaviour for signed integer overflow
 
