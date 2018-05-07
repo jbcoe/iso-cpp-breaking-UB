@@ -1,4 +1,4 @@
-# When is it acceptable to eliminate undefined behaviour?
+# Is undefined behaviour preserved?
 ## ISO/IEC JTC1 SC22 WG21 - DXXXX
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
@@ -22,8 +22,8 @@ _Thomas Russell \<thomas.russell97@gmail.com\>_
 ## TL;DR
 
 Undefined behaviour can be exploited to optimise code and used by compiler and
-library instruemntation to find bugs.  Can we rely on such optimisations and
-bug-squashing abilities after a compiler upgrade?
+library implementations to help find bugs.  Can we rely on such optimisations
+and bug-squashing abilities after a compiler upgrade?
 
 ## Introduction
 
@@ -31,7 +31,7 @@ Should C++ guarantee that undefined behaviour remains undefined behaviour as
 the language and library evolve?
 
 We have recently seen papers that propose rendering currently undefined
-behaviour as well-defined [REFS]. In the ensuing discussion, concerns were
+behaviour as well-defined [[REFs]]. In the ensuing discussion, concerns were
 raised about the possibility of degraded run-time performance (e.g. due to
 missed optimisation opportunities) and lost ability to detect bugs (e.g. due to
 tools like `ubsan` being increasingly constrained). Rather than have precedent
@@ -48,14 +48,12 @@ undefined behaviour.
 
 Contract-based-programming is a software design method where formal
 requirements and guarantees are given for functions. Contract design for C++ is
-described in
-[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf)
-[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html)
-and its impact considered in
-[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf).
+described in [[REF]](http://wg21.link/p0380r1)
+[[REF]](http://wg21.link/p0542r1) and its impact considered in
+[[REF]](http://wg21.link/p0788r0).
 
 From the proposed wording in
-[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html):
+[[REF]](http://wg21.link/p0542r1):
 
 "A precondition is a predicate that should hold upon entry into a function. It
 expresses a function's expectation on its arguments and/or the state of objects
@@ -126,7 +124,7 @@ discussion.
 ### Relaxing a precondition for `std::string_view`
 
 P0903
-[[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
+[[4]](http://wg21.link/p0903r1.pdf)
 proposes to make `string_view((const char*)nullptr)` well-defined. In this
 paper, we take no position on whether this should be adopted, but enumerate
 some of the arguments raised for and against adoption from the perspective of
@@ -255,7 +253,7 @@ reliant on the undefined behaviour of signed integer overflow. Below is an
 
 ## References
 
-- [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf) N4741 – Working Draft, Standard for Programming Language C++, Section 8.1 paragraph 4, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf
+- [[1]](http://wg21.link/n4741.pdf) N4741 – Working Draft, Standard for Programming Language C++, Section 8.1 paragraph 4, http://wg21.link/n4741.pdf
 - [[2]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) GCC Instrumentation Options, https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
 - [[3]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
-- [[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
+- [[4]](http://wg21.link/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://wg21.link/p0903r1.pdf
