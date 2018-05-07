@@ -204,13 +204,14 @@ signed int foo(signed int i) noexcept
 }
 ```
 
-A quick glance at this function would expect that this could be trivially
+A quick glance at this function would expect that `foo` could be trivially
 reduced to a simple `return 10` statement during a flow-analysis optimisation
 pass. Indeed, with the current rules, this is what most modern compilers will
-emit. However, under the previously proposed changes, this would no longer be
-a valid optimisation as there are some inputs which would overflow. 
+emit. However, under the changes proposed in the initial revision of P0907,
+this would no longer be a valid optimisation as there are some inputs which
+would overflow.
 
-There are a plethora of other optimisation opportunities that are similarly
+There is a plethora of other optimisation opportunities that are similarly
 reliant on the undefined behaviour of signed integer overflow. Below is an
 (incomplete) summary of other optimisations gathered from
 [[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
