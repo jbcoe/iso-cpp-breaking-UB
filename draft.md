@@ -21,7 +21,7 @@ a compiler upgrade?
 ## _UB or not UB_
 _To define or not to define? That is the question: whether ‘tis nobler in the
 mind to suffer the slings and arrows of undefined behaviour, or to take arms
-against a sea it troubles and by defining: end them._
+against a sea of troubles and by defining: end them._
 
 ## Introduction
 
@@ -34,7 +34,7 @@ raised about the possibility of degraded run-time performance (e.g. due to
 missed optimisation opportunities) and lost ability to detect bugs (e.g. due to
 tools like `ubsan` being increasingly constrained). Rather than have precedent
 determined by a small number of concrete cases, we would like to discuss more
-generally the issues of changes to the language and library that aim to
+generally the issue of changes to the language and library that aim to
 eliminate undefined behaviour.
 
 In this paper, we invite the combined evolution groups to discuss, if not
@@ -55,7 +55,7 @@ to produce an instrumented build in which some instances of undefined behaviour
 will be detected and the program terminated with a helpful message.  
 
 Standard library implementations can be augmented with debug checks and
-assertions to ensure that preconditions are true.  For instance:
+assertions to ensure that preconditions are true.  For instance, calling
 `std::vector::operator[](size_t i)` with `i` beyond the end of the vector will
 be caught in a debug build using Microsoft's Standard Library implementation.
 
@@ -122,7 +122,7 @@ by some considerable distance or time.
 
 ### Defining the behaviour for signed integer overflow
 P0907 [[5]](http://wg21.link/p0907r1.html) originally proposed in R0 to make
-signed integer overflow well-defined such that it behaves as unsigned integers
+signed integer overflow well-defined such that it behaves as for unsigned integers
 on overflowing operations (i.e. overflow in the positive direction wraps around
 from the maximum integer value for the type back to the minimum and vice versa
 for overflow in the opposite direction). This was subsequently removed from the
@@ -132,7 +132,7 @@ defining signed integer overflow.
 
 #### Performance
 The primary complaint against defining overflow for signed integers was lost
-optimizaton opportunities and the subsequent expected performance degredation.
+optimizaton opportunities and the subsequent expected performance degradation.
 Modern compilers take advantage of the currently undefined behaviour on signed
 integer overflow for a variety of optimizations.
 
@@ -153,7 +153,7 @@ A quick glance at this function would expect that this could be trivially
 reduced to a simple `return 10` statement during a flow-analysis optimization
 pass. Indeed, with the current rules, this is what most modern compilers will
 emit. However, under the previously proposed changes, this would no longer be
-valid as there are some inputs which would overflow. 
+a valid optimisation as there are some inputs which would overflow. 
 
 There are a plethora of other optimization opportunities that are similarly
 reliant on the undefined behaviour of signed integer overflow. Below is an
