@@ -121,21 +121,74 @@ situation that is much harder to debug as the cause and effect may be separated
 by some considerable distance or time.
 
 ### Defining the behaviour for signed integer overflow
-The notion of making signed integer overflow well-defined was briefly
-entertained [REF].  Currently signed integer overflow is undefined behaviour
-and can be exploited by an optimising compiler to vectorize loops [GODBOLT] and
-by an instrumented compiler to catch bugs caused by overflow [UBSAN].
+P0907 [[5]](http://wg21.link/p0907r1.html) originally proposed in R0 to make
+signed integer overflow well-defined such that it behaves as unsigned integers
+on overflowing operations (i.e. overflow in the positive direction wraps around
+from the maximum integer value for the type back to the minimum and vice versa
+for overflow in the opposite direction). This was subsequently removed from the
+proposal following various concerns raised from EWG, SG6 and SG12. Below we
+present a quick overview of the reasons for removal of the sub-proposal
+defining signed integer overflow.
+
+#### Performance
+The primary complaint against defining overflow for signed integers was lost
+optimizaton opportunities and the subsequent expected performance degredation.
+Modern compilers take advantage of the currently undefined behaviour on signed
+integer overflow for a variety of optimizations.
+
+Possibly the most crucial of the currently permissed optimizations is loop
+analysis. Even considering a simple inconspicuous seeming `for` loop such as
+the following is affected:
+
+```c++
+signed int foo(signed int i) noexcept
+{
+  signed int j, k = 0;
+  for (j = i; j < i + 10; ++j) ++k;
+  return k;
+}
+```
+
+A quick glance at this function would expect that this could be trivially
+reduced to a simple `return 10` statement during a flow-analysis optimization
+pass. Indeed, with the current rules, this is what most modern compilers will
+emit. However, under the previously proposed changes, this would no longer be
+valid as there are some inputs which would overflow. 
+
+There are a plethora of other optimization opportunities that are similarly
+reliant on the undefined behaviour of signed integer overflow. Below is an
+(incomplete) summary of other optimizations gathered from
+[[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
+
+- `(x * c) == 0` can be optimized to `x == 0` eliding the multiplication.
+- `(x * c_1) / c_2` can be optimized to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
+- `(-x) / (-y)` can be optimized to `x / y`.
+- `(x + c) < x` can be optimized to `false` if `c > 0` or `true` otherwise.
+- `(x + c) <= x` can be optimized to `false` if `c >= 0` or `true` otherwise.
+- `(x + c) > x` can be optimized to `true` if `c >= 0` and `false` otherwise.
+- `(x + c) >= x` can be optimized to `true` if `c > 0` and `false` otherwise.
+- `-x == -y` can be optimized to `x == y`. 
+- `x + c > y` can be optimized to `x + (c - 1) >= y`.
+- `x + c <= y` can be optimized to `x + (c - 1) < y`.
+- `(x + c_1) == c_2` can be optimized to `x == (c_2 - c_1)`.
+- `(x + c_1) == (y + c_2)` can be optimized to `x == (y + (c_2 - c_1))` if `c_1 <= c_2`.
+- Various value-range specific optimizations such as:
+  - Changing comparisons `x < y` to `true` or `false`. 
+  - Changing `min(x,y)` or `max(x,y)` to `x` or `y` if the ranges do not overlap.
+  - Changing `abs(x)` to `x` or `-x` if the range does not cross 0.
+  - Changing `x / c` to `x >> log2(c)` if `x > 0` 
+  - Changing `x % c` to `x & (c-1)` if `x > 0` and the constant `c` is a power of 2.
 
 ## Polls
 
-- Preconditions whose violation may result in undefined behaviour should be
-  preserved between C++ standards.
-- Postconditions should be preserved between C++ standards?
-- New preconditions that may introduce new sources of undefined behaviour can
-  be accepted into the C++ standard.
-- Compiler / library diagnostics, optimisations and other technologies that
-  make use of undefined behaviour should be considered when determining if a
-  new feature is non-breaking.
+- Undefined behavior should be preserved from one version of the C++ Standard
+  to the next.
+
+- Compiler / library diagnostics that allow undefined behaviour to be trapped
+  should be considered when determining if a new feature is non-breaking.
+
+- Compiler / library optimisations that exploit undefined behaviour should be
+  considered when determining if a new feature is non-breaking.
 
 ## References
 
