@@ -34,7 +34,7 @@ We have recently seen papers that propose rendering currently undefined
 behaviour as well-defined
 [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
 [[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html). In
-the ensuing discussion, concerns were raised about the possibility of degraded
+the ensuing discussions, concerns were raised about the possibility of degraded
 run-time performance (e.g. due to missed optimisation opportunities) and lost
 ability to detect bugs (e.g. due to tools like `ubsan` being increasingly
 constrained). Rather than have precedent determined by a small number of
@@ -104,11 +104,11 @@ programs less-than optimally efficient as they may contain run-time checks for
 behaviour that is now guaranteed. 
 
 There may be other factors to consider though. People may be _relying_ on
-undefined behaviour for trapping errors or for optimization.
+undefined behaviour for trapping errors or for optimisation.
 
 ## Sanitizers and assertions
 
-The undefined behaviour sanitizer from GCC
+The undefined behaviour sanitizers from GCC
 [[8]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) and
 Clang [[9]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
 used to produce an instrumented build in which some instances of undefined
@@ -210,8 +210,7 @@ Modern compilers take advantage of the currently undefined behaviour on signed
 integer overflow for a variety of optimisations.
 
 Possibly the most crucial of the currently permitted optimisations is loop
-analysis. Even considering a simple inconspicuous seeming `for` loop such as
-the following is affected:
+analysis. A simple `for` loop such as the one below would be adversely affected:
 
 ```c++
 signed int foo(signed int i) noexcept
@@ -222,20 +221,20 @@ signed int foo(signed int i) noexcept
 }
 ```
 
-A quick glance at this function would expect that `foo` could be trivially
-reduced to a simple `return 10` statement during a flow-analysis optimisation
-pass. Indeed, with the current rules, this is what most modern compilers will
-emit. However, under the changes proposed in P0907R0
+We might expect that the function `foo` could be trivially reduced to a simple
+`return 10` statement during a flow-analysis optimisation pass. Indeed, with
+the current language rules, this is what most modern compilers will emit.
+However, under the changes proposed in P0907R0
 [[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html)
 this would no longer be a valid optimisation as there are some inputs which
 would overflow.
 
-There is a plethora of other optimisation opportunities that are similarly
-reliant on the undefined behaviour of signed integer overflow. Below is an
-(incomplete) summary of other optimisations gathered from
+There are many other optimisation opportunities that are similarly reliant on
+the undefined behaviour of signed integer overflow. Below is an (incomplete)
+summary of other optimisations gathered from
 [[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
 
-- `(x * c) == 0` can be optimised to `x == 0` eliding the multiplication.
+- `(x * c) == 0` can be optimised to `x == 0`, eliding the multiplication.
 - `(x * c_1) / c_2` can be optimised to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
 - `(-x) / (-y)` can be optimised to `x / y`.
 - `(x + c) < x` can be optimised to `false` if `c > 0` or `true` otherwise.
