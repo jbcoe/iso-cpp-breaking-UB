@@ -70,7 +70,7 @@ perform index-access with narrow and wide contracts respectively.
 
 ### Changes to contracts
 In an updated version of the C++ Standard we may wish to consider making
-changes to a function's preconditions and postconditions. 
+changes to a function's preconditions and postconditions.
 
 Making preconditions stricter would be a silent breaking change: a previously
 valid program would now invoke undefined behaviour.  We would expect such a
@@ -93,13 +93,13 @@ programs less-than optimally efficient as they may contain run-time checks for
 behaviour that is now guaranteed. 
 
 There may be other factors to consider though. People may be _relying_ on
-undefined behaviour for trapping errors or for optimization.  
+undefined behaviour for trapping errors or for optimization.
 
 ## Sanitizers and assertions
 The undefined behavior sanitizer from GCC and Clang
 [[REF]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
 used to produce an instrumented build in which some instances of undefined
-behaviour will be detected and the program terminated with a helpful message.  
+behaviour will be detected and the program terminated with a helpful message.
 
 Standard library implementations can be augmented with debug checks and
 assertions to ensure that preconditions are true.  For instance, calling
@@ -111,6 +111,10 @@ Builds with sanitizers and active assertions are commonly used by engineers to
 identify and eliminate bugs. 
 
 ## Case studies
+The following case studies are recent examples of proposed changes to
+undefined behaviour. Both cases would be considered acceptable by the
+contract-based criteria we outlined above but have led to considerable
+discussion.
 
 ### Relaxing a precondition for `std::string_view`
 
@@ -162,8 +166,8 @@ In the current specification, passing `nullptr` to the single-parameter
 constructor for `string_view` violates a precondition and may result in
 undefined behaviour when attempting to calculate the length of the string view
 (which will involve dereferencing the pointer). This provides an opportunity
-for a library implementation to emit diagnostics that could guide the developer
-  towards the source of the problem.
+for a library implementation to emit diagnostics that could guide the developer 
+towards the source of the problem.
 
 By making this constructor valid, and internally reinterpreting it as a call to
 `string_view(nullptr, 0)`, we would eliminate the possibility for the library
