@@ -160,7 +160,8 @@ std::string getUserName(const UserConfig& user_config) {
   
   switch (user_config.user_type) {
     case UserType::FOO:
-      getFooName(user_config.uuid, &username); // external library C function
+      // External library C function
+      getFooName(user_config.uuid, &username); 
       break;
     case UserType::BAR:
       // Programmer error: forgot to call getBarName
@@ -265,6 +266,12 @@ summary of other optimisations gathered from
 
 - Compiler / library optimisations that exploit undefined behaviour should be
   considered when determining if a new feature is non-breaking.
+
+## Acknowledgements
+
+We would like to thank Walter Brown for extensive feedback on an early draft of
+this paper, and the members of the BSI, discussion with whom led to this paper
+being drafted.
 
 ## References
 - [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
