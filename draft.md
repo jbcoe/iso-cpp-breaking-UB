@@ -47,12 +47,35 @@ performance or testing purposes, in addition to the goal of retaining validity
 of currently well-formed programs [REF]?
 
 ## Preconditions and postconditions
-[TODO]
+
+Contract-based-programming is a software design method where formal
+requirements and guarantees are given for functions. Contract design for C++ is
+described in
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf)
+and
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html).
+
+"A precondition is a predicate that should hold upon entry into a function. It
+expresses a function's expectation on its arguments and/or the state of objects
+that may be used by the function."
+
+"A postcondition is a predicate that should hold upon exit from a function. It
+expresses the conditions that a function should ensure for the return value
+and/or the state of objects that may be used by the function."
+
+A function with preconditions is said to have a _narrow contract_. Violating
+the preconditions on such a function results in undefined behaviour. 
+
+When there are no preconditions on input, a function is said to have a _wide
+contract_.  There may be input values for wide-contract functions that result
+in exceptions being thrown (`std::vector::at(size_t i)` when
+`i>std::vector::size()`) but such behaviour is well-defined.
 
 ## Sanitizers and assertions
-The undefined behavior sanitizer from GCC and Clang [[REF]](UBSAN) can be used
-to produce an instrumented build in which some instances of undefined behaviour
-will be detected and the program terminated with a helpful message.  
+The undefined behavior sanitizer from GCC and Clang
+[[REF]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
+used to produce an instrumented build in which some instances of undefined
+behaviour will be detected and the program terminated with a helpful message.  
 
 Standard library implementations can be augmented with debug checks and
 assertions to ensure that preconditions are true.  For instance:
