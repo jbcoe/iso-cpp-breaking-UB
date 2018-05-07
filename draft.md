@@ -1,5 +1,5 @@
 # Is undefined behaviour preserved?
-## ISO/IEC JTC1 SC22 WG21 - DXXXX
+## ISO/IEC JTC1 SC22 WG21 - P1093R0
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
 
