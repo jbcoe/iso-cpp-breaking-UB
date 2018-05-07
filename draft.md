@@ -17,7 +17,7 @@ _Thomas Russell \<thomas.russell97@gmail.com\>_
 > the slings and arrows of undefined behaviour, or to take arms against a sea of
 > troubles and by defining: end them._
 >
-> -- William Shakepeare, Hamlet (adapted).
+> -- William Shakespeare, Hamlet (adapted).
 
 ## TL;DR
 
@@ -31,16 +31,18 @@ Should C++ guarantee that undefined behaviour remains undefined behaviour as
 the language and library evolve?
 
 We have recently seen papers that propose rendering currently undefined
-behaviour as well-defined [[REFs]]. In the ensuing discussion, concerns were
-raised about the possibility of degraded run-time performance (e.g. due to
-missed optimisation opportunities) and lost ability to detect bugs (e.g. due to
-tools like `ubsan` being increasingly constrained). Rather than have precedent
-determined by a small number of concrete cases, we would like to discuss more
-generally the issue of changes to the language and library that aim to
-eliminate undefined behaviour.
+behaviour as well-defined
+[[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
+[[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html). In
+the ensuing discussion, concerns were raised about the possibility of degraded
+run-time performance (e.g. due to missed optimisation opportunities) and lost
+ability to detect bugs (e.g. due to tools like `ubsan` being increasingly
+constrained). Rather than have precedent determined by a small number of
+concrete cases, we would like to discuss more generally the issue of changes to
+the language and library that aim to eliminate undefined behaviour.
 
-In this paper, following the spirit of [[REF]](https://wg21.link/P0684R2) and
-[[REF]](https://wg21.link/P0921R0) , we invite the combined evolution groups to
+In this paper, following the spirit of [[3]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0684r2.pdf) and
+[[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0921r0.pdf), we invite the combined evolution groups to
 discuss, if not determine, (non-binding) policy on preserving or eliminating
 undefined behaviour.
 
@@ -48,12 +50,12 @@ undefined behaviour.
 
 Contract-based-programming is a software design method where formal
 requirements and guarantees are given for functions. Contract design for C++ is
-described in [[REF]](http://wg21.link/p0380r1)
-[[REF]](http://wg21.link/p0542r1) and its impact considered in
-[[REF]](http://wg21.link/p0788r0).
+described in [[5]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf) and 
+[[6]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html) and its impact considered in
+[[7]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf).
 
 From the proposed wording in
-[[REF]](http://wg21.link/p0542r1):
+[[6]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html):
 
 "A precondition is a predicate that should hold upon entry into a function. It
 expresses a function's expectation on its arguments and/or the state of objects
@@ -82,7 +84,7 @@ valid program would now invoke undefined behaviour.  We would expect such a
 proposed change to be rejected.
 
 Relaxing postconditions would similarly be a silent breaking change: a
-previously valid program that relied on the postconditions of one funtion to
+previously valid program that relied on the postconditions of one function to
 satisfy the preconditions of another would now invoke undefined behaviour.  We
 would similarly expect such a proposed change to be rejected.
 
@@ -101,8 +103,9 @@ There may be other factors to consider though. People may be _relying_ on
 undefined behaviour for trapping errors or for optimization.
 
 ## Sanitizers and assertions
-The undefined behavior sanitizer from GCC and Clang
-[[REF]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
+The undefined behaviour sanitizer from GCC
+[[8]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) and
+Clang [[9]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) can be
 used to produce an instrumented build in which some instances of undefined
 behaviour will be detected and the program terminated with a helpful message.
 
@@ -124,7 +127,7 @@ discussion.
 ### Relaxing a precondition for `std::string_view`
 
 P0903
-[[4]](http://wg21.link/p0903r1.pdf)
+[[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
 proposes to make `string_view((const char*)nullptr)` well-defined. In this
 paper, we take no position on whether this should be adopted, but enumerate
 some of the arguments raised for and against adoption from the perspective of
@@ -181,14 +184,16 @@ situation that is much harder to debug as the cause and effect may be separated
 by some considerable distance or time.
 
 ### Defining the behaviour for signed integer overflow
-P0907 [[5]](http://wg21.link/p0907r1.html) originally proposed in R0 to make
-signed integer overflow well-defined such that it behaves as for unsigned integers
-on overflowing operations (i.e. overflow in the positive direction wraps around
-from the maximum integer value for the type back to the minimum and vice versa
-for overflow in the opposite direction). This was subsequently removed from the
-proposal following various concerns raised from EWG, SG6 and SG12. Below we
-present a quick overview of the reasons for removal of the sub-proposal
-defining signed integer overflow.
+
+P0907R0
+[[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html)
+originally proposed to make signed integer overflow well-defined such that it
+behaves as for unsigned integers on overflowing operations (i.e. overflow in
+the positive direction wraps around from the maximum integer value for the type
+back to the minimum and vice versa for overflow in the opposite direction).
+This was subsequently removed from the proposal following various concerns
+raised from EWG, SG6 and SG12. Below we present a quick overview of the reasons
+for removal of the sub-proposal defining signed integer overflow.
 
 #### Performance
 The primary complaint against defining overflow for signed integers was lost
@@ -212,14 +217,15 @@ signed int foo(signed int i) noexcept
 A quick glance at this function would expect that `foo` could be trivially
 reduced to a simple `return 10` statement during a flow-analysis optimisation
 pass. Indeed, with the current rules, this is what most modern compilers will
-emit. However, under the changes proposed in the initial revision of P0907,
+emit. However, under the changes proposed in P0907R0
+[[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html)
 this would no longer be a valid optimisation as there are some inputs which
 would overflow.
 
 There is a plethora of other optimisation opportunities that are similarly
 reliant on the undefined behaviour of signed integer overflow. Below is an
 (incomplete) summary of other optimisations gathered from
-[[6]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
+[[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html):
 
 - `(x * c) == 0` can be optimised to `x == 0` eliding the multiplication.
 - `(x * c_1) / c_2` can be optimised to `x * (c_1 / c_2)` if `c_1` is divisible by `c_2`.
@@ -252,8 +258,13 @@ reliant on the undefined behaviour of signed integer overflow. Below is an
   considered when determining if a new feature is non-breaking.
 
 ## References
-
-- [[1]](http://wg21.link/n4741.pdf) N4741 – Working Draft, Standard for Programming Language C++, Section 8.1 paragraph 4, http://wg21.link/n4741.pdf
-- [[2]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) GCC Instrumentation Options, https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
-- [[3]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
-- [[4]](http://wg21.link/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://wg21.link/p0903r1.pdf
+- [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf) P0903R1 – Define `basic_string_view(nullptr)`, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf
+- [[2]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html) P0907R0 – Signed Integers are Two's Complement, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r0.html
+- [[3]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0684r2.pdf) P0684R2 – C++ Stability, Velocity and Deployment Plans, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0684r2.pdf
+- [[4]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0921r0.pdf) P0921R0, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0921r0.pdf
+- [[5]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf) P0380R1 – A Contract Design, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf
+- [[6]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html) P0542R1 – Support for contract based programming in C++, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html
+- [[7]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf) P0788R0 – Standard Library Specification in a Concepts and Contracts World, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf
+- [[8]](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) GCC Instrumentation Options, https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+- [[9]](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) Clang Undefined Behaviour Sanitizer, https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+- [[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html) How undefined signed overflow enables optimizations in GCC, https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html
