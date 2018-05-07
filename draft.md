@@ -135,24 +135,22 @@ P0903
 [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
 proposes to widen the contract of the `string_view(const char*)` constructor to
 make `string_view((const char*)nullptr)` well-defined. In this paper, we take
-no position on whether this should be adopted, but enumerate some of the
+no position on whether this should be adopted, but present some of the
 arguments raised for and against adoption from the perspective of widening the
 interface.
 
-#### In favour of widening
+Widening the contract of `string_view`'s pointer constructor is a non-breaking
+change as it does not result in relaxation of postconditions: `string_view` can
+already be constructed in a state where it has a `NULL` data member using the
+pointer and size constructor (`string_view(const char*, size_t)`).
 
-- It is a non-breaking change – all currently valid code will remain valid.
-- There is potentially reduced cognitive load on consumers of `string_view` and
-  maintainers of code using `string_view`.
+Widening the contract of `string_view` will impose an additional run-time check
+as the now potentially `NULL` pointer will need to be checked.  Making
+previously undefined behaviour well-defined will make some bugs harder to find
+as it will no longer be possible to assert that the pointer in non-null.
 
-#### Against widening
-
-- Additional run-time checking, regardless of build mode (i.e. a performance
-  impact).
-- Prevents certain classes of potential bugs being detected by the
-  implementation.
-
-To explore these points further, consider the following code:
+The last point is sufficiently subtle for an example to be illuminating.
+Consider the following code:
 
 ```c++
 std::string processName(std::string_view username);
@@ -203,7 +201,10 @@ This was subsequently removed from the proposal following various concerns
 raised from EWG, SG6 and SG12. Below we present a quick overview of the reasons
 for removal of the sub-proposal defining signed integer overflow.
 
-#### Performance
+According to the earlier contract-based arguments, making integer overflow
+well-defined is an non-breaking change as it relaxes preconditions and does not
+further restrict postconditions - there is no previously valid program that
+would be rendered invalid by making integer overflow well defined.
 
 The primary complaint against defining overflow for signed integers was lost
 optimisation opportunities and the subsequent expected performance degradation.
