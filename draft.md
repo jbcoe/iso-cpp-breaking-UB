@@ -37,14 +37,10 @@ determined by a small number of concrete cases, we would like to discuss more
 generally the issue of changes to the language and library that aim to
 eliminate undefined behaviour.
 
-In this paper, we invite the combined evolution groups to discuss, if not
-determine, (non-binding) policy on preserving or eliminating undefined
-behaviour.
-
-Should the committee support users and implementers that rely on the invalidity
-of currently invalid programs (i.e. relying on undefined behaviour) for
-performance or testing purposes, in addition to the goal of retaining validity
-of currently well-formed programs [REF]?
+In this paper, following the spirit of [[REF]](https://wg21.link/P0684R2) and
+[[REF]](https://wg21.link/P0921R0) , we invite the combined evolution groups to
+discuss, if not determine, (non-binding) policy on preserving or eliminating
+undefined behaviour.
 
 ## Preconditions and postconditions
 
@@ -52,8 +48,12 @@ Contract-based-programming is a software design method where formal
 requirements and guarantees are given for functions. Contract design for C++ is
 described in
 [[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r1.pdf)
-and
-[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html).
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html)
+and its impact considered in
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf).
+
+From the proposed wording in
+[[REF]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0542r1.html):
 
 "A precondition is a predicate that should hold upon entry into a function. It
 expresses a function's expectation on its arguments and/or the state of objects
@@ -64,12 +64,41 @@ expresses the conditions that a function should ensure for the return value
 and/or the state of objects that may be used by the function."
 
 A function with preconditions is said to have a _narrow contract_. Violating
-the preconditions on such a function results in undefined behaviour. 
+the preconditions on such a function may result in an ill-formed program and
+associated compile-time-diagnostics or in undefined behaviour. 
 
 When there are no preconditions on input, a function is said to have a _wide
-contract_.  There may be input values for wide-contract functions that result
-in exceptions being thrown (`std::vector::at(size_t i)` when
-`i>std::vector::size()`) but such behaviour is well-defined.
+contract_.  There may be input values for wide-contract-functions that result
+in exceptions being thrown but such behaviour is always well-defined.
+`std::vector` has `operator[]` and `at` to perform index-access with narrow and
+wide contracts respectively.
+
+### Changes to contracts
+In an updated version of the C++ Standard we may wish to consider making
+changes to a function's preconditions and postconditions. 
+
+Making preconditions stricter would be a silent breaking change: a previously
+valid program would now invoke undefined behaviour.  We would expect such a
+proposed change to be rejected.
+
+Relaxing postconditions would similarly be a silent breaking change: a
+previously valid program that relied on the postconditions of one funtion to
+satisfy the preconditions of another would now invoke undefined behaviour.  We
+would similarly expect such a proposed change to be rejected.
+
+Relaxing preconditions would not render any existing program invalid or
+undefined.  We would expect such a change to be accepted so long as it was not
+accompanied by relaxing of postconditions.
+
+Making postconditions stricter would similarly not render any existing program
+invalid or undefined.  We would expect such a change to be accepted.
+
+Relaxing preconditions and restricting postconditions may render some existing
+programs less-than optimally efficient as they may contain run-time checks for
+behaviour that is now guaranteed. 
+
+There may be other factors to consider though. People may be _relying_ on
+undefined behaviour for trapping errors or for optimization.  
 
 ## Sanitizers and assertions
 The undefined behavior sanitizer from GCC and Clang
@@ -79,8 +108,12 @@ behaviour will be detected and the program terminated with a helpful message.
 
 Standard library implementations can be augmented with debug checks and
 assertions to ensure that preconditions are true.  For instance, calling
-`std::vector::operator[](size_t i)` with `i` beyond the end of the vector will
-be caught in a debug build using Microsoft's Standard Library implementation.
+`std::vector::operator[](size_t i)` with `i` greater than the size of the
+vector will be caught in a debug build using Microsoft's Standard Library
+implementation.
+
+Builds with sanitizers and active assertions are commonly used by engineers to
+identify and eliminate bugs. 
 
 ## Case studies
 
