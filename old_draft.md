@@ -46,18 +46,94 @@ of currently invalid programs (i.e. relying on undefined behaviour) for
 performance or testing purposes, in addition to the goal of retaining validity
 of currently well-formed programs [REF]?
 
+## A simple example - integer division by zero
+
+Consider the following code:
+
+```c++
+int divide(int x, int y) {
+  return x / y;
+}
+```
+
+If `y == 0` then the result of the division cannot be represented as an `int`
+and the result is undefined. This function requires the client (caller) to
+provide valid input (i.e. non-zero `y`) to avoid triggering undefined
+behaviour.
+
+We could avoid undefined behaviour by implementing an explicit check and
+handling invalid input with an exception:
+
+```c++
+int divide(int x, int y) {
+  if (y == 0) {
+    throw std::runtime_error("Bad argument: Division by zero");
+  }
+  return x / y;
+}
+```
+
+or by returning an `expected` type [REF]:
+
+```c++
+Expected<int, std::string> divide(int x, int y) {
+  if (y == 0) {
+    return {unexpected, "Bad argument: Division by zero"};
+  }
+  return x / y;
+}
+```
+
+In this implementation, an additional run-time check is made to validate the
+input. Passing `y = 0` is now valid and triggers well-defined behaviour: an
+exception is thrown. The price we pay for this is a compulsory check, which may
+have performance implications. There is no way to opt out of this check if we
+know already that the input is valid.
+
+The first version of `divide` with no check is said to have a 'narrow contract'
+[REF], there is a subset of input that is invalid and calling the function with
+invalid input results in undefined behaviour. The second and third versions
+have a wide contract: no input results in undefined behaviour but bad input
+values (`y=0`) will result in an exception being thrown or an `unexpected`
+return value.
+
+Users of the `divide` function(s) would need to handle the exception, unpack
+the `expected` value or guarantee that input is valid either with explicit
+checks or by relying on function postconditions.
+
+The eventual choice of which `divide` to use is an engineering compromise that
+we are all qualified and happy to make given the particular constraints of our
+production and development environments.  Here, we concern ourselves not with
+the decision that is made, but the changes we are later allowed to make or are
+forbidden from making.
+
+## Sanitizers and assertions
+[TODO]
+
 ## Preconditions and postconditions
 [TODO]
 
-## Sanitizers and assertions
-The undefined behavior sanitizer from GCC and Clang [[REF]](UBSAN) can be used
-to produce an instrumented build in which some instances of undefined behaviour
-will be detected and the program terminated with a helpful message.  
+## Which interface changes do we allow?
 
-Standard library implementations can be augmented with debug checks and
-assertions to ensure that preconditions are true.  For instance:
-`std::vector::operator[](size_t i)` with `i` beyond the end of the vector will
-be caught in a debug build using Microsoft's Standard Library implementation.
+Given current guidance [REF], we consider the following changes to a function
+interface:
+
+* Convert a wide contract to a narrow contract
+* Convert a narrow contract to a wide contract
+* Widen a narrow contract
+* Narrow a narrow contract
+* Make a function `noexcept`
+* Remove `noexcept` from a function definition
+* Change the return type of a function 
+
+### Convert a wide contract to a narrow contract
+### Convert a narrow contract to a wide contract
+### Widen a narrow contract
+### Narrow a narrow contract
+### Mark a function as `noexcept`
+### Remove `noexcept` from a function definition
+### Change the return type of a function from `T `to `expected<T>`
+### Change the return type of a function from `expected<T>` to `T`
 
 ## Case studies
 
