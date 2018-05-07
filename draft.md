@@ -18,11 +18,6 @@ _Thomas Russell \<thomas.russell97@gmail.com\>_
 Can people still rely on `ubsan` and library instrumentation to find bugs after
 a compiler upgrade?
 
-## _UB or not UB_
-_To define or not to define? That is the question: whether ‘tis nobler in the
-mind to suffer the slings and arrows of undefined behaviour, or to take arms
-against a sea of troubles and by defining: end them._
-
 ## Introduction
 
 Should C++ guarantee that undefined behaviour remains undefined behaviour as
