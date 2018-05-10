@@ -192,6 +192,12 @@ possibility for the library to flag this for attention, and instead produce an
 empty string view, a situation that is much harder to debug as the cause and
 effect may be separated by some considerable distance or time.
 
+The alternative argument to the above, is that it is wrong to use postconditions
+to detect this kind of logic / programming error. Instead a small unit test could
+not only cover the error case above, but also other errors that would be undetectable
+by a static analysis tool. This would eliminate the argument of error detection,
+and leave the path open for changes to the specification of `string_view`.
+
 ### Defining the behaviour for signed integer overflow
 
 P0907R0
