@@ -78,7 +78,7 @@ wide-contract-functions that result in exceptions being thrown but such
 behaviour is always well-defined. `std::vector` has `operator[]` and `at` to
 perform index-access with narrow and wide contracts respectively.
 
-### Changes to contracts
+### Changes to function contracts
 
 In an updated version of the C++ Standard we may wish to consider making
 changes to a function's preconditions and postconditions.
@@ -104,7 +104,11 @@ programs less-than optimally efficient as they may contain run-time checks for
 behaviour that is now guaranteed. 
 
 There may be other factors to consider though. People may be _relying_ on
-undefined behaviour for trapping errors or for optimisation.
+undefined behaviour for trapping errors or for optimisation. Additionally, if
+we were to narrow a postcondition, by now making a function throw instead of,
+say, return null, this would potentially have significant impact on existing
+programs, but not make them invalid or undefined. In this paper, we do not
+address this scenario, as we wish to focus specifically on undefined behaviour.
 
 ## Sanitizers and assertions
 
