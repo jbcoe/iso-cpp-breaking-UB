@@ -83,23 +83,23 @@ perform index-access with narrow and wide contracts respectively.
 In an updated version of the C++ Standard we may wish to consider making
 changes to a function's preconditions and postconditions.
 
-Making preconditions stricter would be a silent breaking change: a previously
+Making preconditions narrower would be a silent breaking change: a previously
 valid program would now invoke undefined behaviour.  We would expect such a
 proposed change to be rejected.
 
-Relaxing postconditions would similarly be a silent breaking change: a
+Widening postconditions would similarly be a silent breaking change: a
 previously valid program that relied on the postconditions of one function to
 satisfy the preconditions of another would now invoke undefined behaviour.  We
 would similarly expect such a proposed change to be rejected.
 
-Relaxing preconditions would not render any existing program invalid or
+Widening preconditions would not render any existing program invalid or
 undefined.  We would expect such a change to be accepted so long as it was not
-accompanied by relaxing of postconditions.
+accompanied by widening of postconditions.
 
-Making postconditions stricter would similarly not render any existing program
+Making postconditions narrower would similarly not render any existing program
 invalid or undefined.  We would expect such a change to be accepted.
 
-Relaxing preconditions and restricting postconditions may render some existing
+Widening preconditions and narrowing postconditions may render some existing
 programs less-than optimally efficient as they may contain run-time checks for
 behaviour that is now guaranteed. 
 
@@ -129,7 +129,7 @@ The following case studies are recent examples of proposed changes to undefined
 behaviour. Both cases would be considered acceptable by the contract-based
 criteria we outlined above but have led to considerable discussion.
 
-### Relaxing a precondition for `std::string_view`
+### Widening a precondition for `std::string_view`
 
 P0903
 [[1]](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0903r1.pdf)
@@ -140,13 +140,11 @@ arguments raised for and against adoption from the perspective of widening the
 interface.
 
 Widening the contract of `string_view`'s pointer constructor is a non-breaking
-change as it does not result in relaxation of postconditions: `string_view` can
+change as it does not result in the widening of postconditions: `string_view` can
 already be constructed in a state where it has a `NULL` data member using the
 pointer and size constructor (`string_view(const char*, size_t)`).
 
-Widening the contract of `string_view` will impose an additional run-time check
-as the now potentially `NULL` pointer will need to be checked.  Making
-previously undefined behaviour well-defined will make some bugs harder to find
+Making previously undefined behaviour well-defined will make some bugs harder to find
 as it will no longer be possible to assert that the pointer in non-null.
 
 The last point is sufficiently subtle for an example to be illuminating.
@@ -203,8 +201,8 @@ raised from EWG, SG6 and SG12. Below we present a quick overview of the reasons
 for removal of the sub-proposal defining signed integer overflow.
 
 According to the earlier contract-based arguments, making integer overflow
-well-defined is an non-breaking change as it relaxes preconditions and does not
-further restrict postconditions - there is no previously valid program that
+well-defined is a non-breaking change, as it widens preconditions and does not
+further narrow postconditions - there is no previously valid program that
 would be rendered invalid by making integer overflow well defined.
 
 The primary complaint against defining overflow for signed integers was lost
