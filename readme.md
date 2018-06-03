@@ -1,9 +1,9 @@
 # Is undefined behaviour preserved?
-## ISO/IEC JTC1 SC22 WG21 - P1093R0
+## ISO/IEC JTC1 SC22 WG21 - P1093R1
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
 
-Date: 2018-05-07
+Date: 2018-05-30
 
 _Andrew Bennieston \<a.j.bennieston@gmail.com\>_
 
@@ -311,3 +311,10 @@ being drafted.
 - [[10]](https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html)
   How undefined signed overflow enables optimizations in GCC,
   https://kristerw.blogspot.co.uk/2016/02/how-undefined-signed-overflow-enables.html
+  
+  ## Changes since R0
+  
+  - Used the terms _narrowing_ and _widening_ instead of _restricting_ and _relaxing_.
+  - Deleted a note about an additional `NULL` check to avoid making this a discussion about _"you don't pay for what you don't use"_ and keep the focus on UB.
+  - Added a note about narrowing of post conditions.
+  - Added a point about other ways to detect errors without relying on static analysis (i.e. unit testing).
