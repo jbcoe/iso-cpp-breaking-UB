@@ -1,7 +1,7 @@
-all: P1093.pdf
+all: D1093R1.pdf
 
-P1093.pdf: readme.md
-	pandoc readme.md --pdf-engine=xelatex -o P1093.pdf
+D1093R1.pdf: readme.md
+	pandoc readme.md --pdf-engine=xelatex -o D1093R1.pdf
 
 clean:
-	rm -f P1093.pdf
+	rm -f D1093R1.pdf
