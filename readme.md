@@ -1,9 +1,9 @@
 # Is undefined behaviour preserved?
-## ISO/IEC JTC1 SC22 WG21 - P1093R0
+## ISO/IEC JTC1 SC22 WG21 - D1093R1
 
 Working Group: Evolution, Library Evolution, Undefined Behaviour
 
-Date: 2018-05-07
+Date: 2018-06-03
 
 _Andrew Bennieston \<a.j.bennieston@gmail.com\>_
 
